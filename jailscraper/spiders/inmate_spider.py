@@ -21,13 +21,14 @@ ONE_DAY = timedelta(days=1)
 class InmatesSpider(scrapy.Spider):
     name = "inmates"
 
-    def __init__(self, category=None, *args, **kwargs):
+    def __init__(self, category=None, testing=False, *args, **kwargs):
         super(InmatesSpider, self).__init__(*args, **kwargs)
         if app_config.USE_S3_STORAGE:
             s3 = boto3.resource('s3')
             self._bucket = s3.Bucket(app_config.S3_BUCKET)
         self._today = datetime.combine(date.today(), datetime.min.time())
         self._yesterday = self._today - ONE_DAY
+        self._testing = bool(testing)
 
     def start_requests(self):
         for url in self._generate_urls():
@@ -71,8 +72,10 @@ class InmatesSpider(scrapy.Spider):
 
         # If there was seed data, increment day. Otherwise, just start on fallback date
         # returned by self._get_seed_file().
-        if len(urls):
-            last_date = last_date + ONE_DAY
+        # if len(urls):
+            # last_date = last_date + ONE_DAY
+
+        # import ipdb; ipdb.set_trace();
 
         # Scan the universe of URLs
         while last_date < self._today:
@@ -81,6 +84,9 @@ class InmatesSpider(scrapy.Spider):
                 jailnumber = '{0}{1:03d}'.format(next_query, num)
                 urls.append(app_config.INMATE_URL_TEMPLATE.format(jailnumber))
             last_date = last_date + ONE_DAY
+
+        if self._testing:
+            return urls[len(urls) - 50:]
 
         return urls
 
