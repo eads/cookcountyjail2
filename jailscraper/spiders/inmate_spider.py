@@ -72,10 +72,8 @@ class InmatesSpider(scrapy.Spider):
 
         # If there was seed data, increment day. Otherwise, just start on fallback date
         # returned by self._get_seed_file().
-        # if len(urls):
-            # last_date = last_date + ONE_DAY
-
-        # import ipdb; ipdb.set_trace();
+        if len(urls):
+            last_date = last_date + ONE_DAY
 
         # Scan the universe of URLs
         while last_date < self._today:
@@ -86,7 +84,7 @@ class InmatesSpider(scrapy.Spider):
             last_date = last_date + ONE_DAY
 
         if self._testing:
-            return urls[len(urls) - 50:]
+            return urls[len(urls) - 600:]
 
         return urls
 
